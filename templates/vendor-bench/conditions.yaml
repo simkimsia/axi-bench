@@ -1,0 +1,34 @@
+# Conditions: same model, different tool surface.
+# axi-bench maps each entry to one Harbor AgentConfig with a distinct name.
+model: anthropic/claude-sonnet-4-6
+agent: claude-code            # or codex
+
+conditions:
+  cli:
+    name: "vendor CLI (raw)"
+    instructions: |
+      Use the `example` CLI for all operations. Run `example --help` to discover
+      subcommands.
+    command_policy:
+      required_prefix: ["example "]
+      forbidden_prefix: ["example-axi ", "curl "]
+
+  axi:
+    name: "example-axi (AXI wrapper)"
+    instructions: |
+      Use `example-axi` for all operations. It mirrors the `example` CLI with
+      structured output and pre-computed summaries.
+    command_policy:
+      required_prefix: ["example-axi "]
+      forbidden_prefix: ["example ", "curl "]
+
+  mcp:
+    name: "vendor MCP server"
+    instructions: |
+      Use the registered MCP tools for all operations. Do not call the CLI or
+      the HTTP API directly.
+    mcp_servers:
+      - name: example
+        url: https://mcp.example.com/
+    command_policy:
+      forbidden_prefix: ["example ", "example-axi ", "curl "]

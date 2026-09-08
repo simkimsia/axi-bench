@@ -1,0 +1,12 @@
+# Harbor dataset manifest. Generated from `harbor datasets init` (harbor
+# 0.22.0). Add tasks with `harbor add <org>/<name>` or list them under `tasks`.
+[dataset]
+name = "example-axi/bench"
+version = "0.1.0"
+description = "Tool-interface comparison tasks for example-axi"
+keywords = ["axi-bench"]
+
+[[dataset.authors]]
+name = "Your Name"
+
+tasks = []

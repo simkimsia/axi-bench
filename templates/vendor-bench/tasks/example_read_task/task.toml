@@ -1,0 +1,40 @@
+# Harbor task config. Generated from `harbor tasks init` (harbor 0.22.0) and
+# trimmed. Validate after editing:
+#   uvx --python 3.12 harbor check tasks/<task>   (LLM rubric, needs a model)
+#   or load via harbor.models.task.config.TaskConfig in Python (schema only)
+schema_version = "1.4"
+artifacts = []
+
+[task]
+name = "example-axi/example_read_task"
+version = "0.1.0"
+description = "Report the number of items in the pinned fixture."
+keywords = ["single_step", "read_only"]
+
+[[task.authors]]
+name = "Your Name"
+
+[metadata]
+category = "single_step"
+
+[environment]
+network_mode = "no-network"
+build_timeout_sec = 600.0
+os = "linux"
+mcp_servers = []
+
+[environment.env]
+
+[agent]
+timeout_sec = 300.0
+
+[verifier]
+timeout_sec = 120.0
+# "separate" runs the verifier in its own container. Required when the
+# verifier (or an LLM judge) needs to read the agent trajectory.
+environment_mode = "separate"
+collect = []
+
+[verifier.env]
+
+[solution.env]
