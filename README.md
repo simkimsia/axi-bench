@@ -88,6 +88,13 @@ the same agent name silently merge. Every condition therefore gets its own agent
 name. And Harbor's built-in metrics only see rewards, not cost or tokens, so the
 aggregation layer here reads the per-trial files directly.
 
+## Decisions
+
+The three agreements this framework rests on are recorded with context and
+alternatives in [`docs/decisions/`](docs/decisions/): Harbor is the runtime
+(001), YAML is the authoring surface (002), fixtures are seeded projects
+created and destroyed by script (003).
+
 ## Methodology
 
 The full checklist with sources is in [`docs/methodology.md`](docs/methodology.md).
@@ -120,6 +127,7 @@ axi-bench/
     report.py         markdown + CSV report from Harbor job results
   templates/vendor-bench/   copy into <vendor>-axi/bench/
   docs/methodology.md
+  docs/decisions/           dated decision records
   docs/examples/generated-task/   what generate.py emits for one YAML entry
 ```
 

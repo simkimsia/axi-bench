@@ -13,6 +13,8 @@ stats, and report. See README "Ownership split".
 
 ## Decisions already made (do not relitigate)
 
+Full records with context and alternatives: `docs/decisions/`. Summary:
+
 - **Separate repo, not an upstream refactor.** Upstream declined to maintain the
   harness (PRs #28, #94) and its VISION.md caps shared infra. Do not propose
   Harbor adoption or harness consolidation upstream. Restore-class fixes only.
@@ -32,9 +34,12 @@ stats, and report. See README "Ownership split".
   for both. Preference leakage is a known bias.
 - **Deterministic verifiers first.** `tests/test.sh` writes
   `/logs/verifier/reward.txt` or `reward.json`. Judge only for free-text answers.
-- **No live-service fixtures.** Upstream tasks hit `openclaw/openclaw` live and
-  three grading hints went stale (upstream issue #117). Pin fixtures in the
-  image or in a dedicated fixture repo frozen at a commit.
+- **Fixtures are seeded projects created and destroyed by script** (decision
+  003). `create.sh` builds named resources, fixed deployment counts, and
+  deterministic log lines; `destroy.sh` removes them after the run. Task
+  expectations use only recreation-invariant properties. A blank project is
+  not a fixture. Upstream read arbitrary live state and its hints went stale
+  (upstream issue #117).
 - **Start from bench-browser, not bench-github.** Its grader (retries,
   truncation, system-reminder stripping), reporter (methodology and limitations
   sections), validation (`command_policy`), isolation (`--strict-mcp-config`,
