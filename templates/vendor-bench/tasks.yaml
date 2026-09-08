@@ -15,7 +15,7 @@ dataset:
 defaults:
   agent_timeout_sec: 300
   verifier_timeout_sec: 120
-  network_mode: public        # AXI tools reach live services; fixtures are frozen, not offline
+  network_mode: public        # AXI tools reach live services; the fixture is recreated per run
 
 tasks:
   count_items:

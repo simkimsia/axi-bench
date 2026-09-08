@@ -8,7 +8,7 @@ bench/
   tasks.yaml              tasks: prompt, category, verifier, oracle (authored here)
   conditions.yaml         tool surfaces to compare (each becomes one Harbor agent)
   environment/Dockerfile  installs every surface under test, pinned
-  fixtures/               what frozen fixture the tasks read, and how to recreate it
+  fixtures/               create.sh / destroy.sh for the live-service fixture the tasks read
   generated/              Harbor task dirs + dataset.toml from `axi-bench generate` (git-ignored)
   published-results/      rendered report + every trajectory of a published run
 ```

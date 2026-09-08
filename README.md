@@ -40,7 +40,7 @@ The framework owns the **how**. Each vendor repo owns the **what**.
 | YAML to Harbor task compiler (`axi-bench generate`) | `tasks.yaml`: prompt, category, verifier per task |
 | Condition model (one Harbor agent config per tool surface) | `conditions.yaml` naming which surfaces to compare |
 | Claude Code / Codex usage and cost parsing  | `environment/Dockerfile` installing every surface, pinned |
-| Trajectory LLM judge and verifier helpers   | `fixtures/` or a frozen fixture project the tasks read from |
+| Trajectory LLM judge and verifier helpers   | `fixtures/create.sh` and `destroy.sh` for the live-service fixture |
 | Statistics and report generation (CIs, paired differences, cost Pareto) | `published-results/` with every trajectory and the rendered report |
 | Command-policy validator                    | Oracle commands proving each task is solvable |
 | Templates and the methodology checklist     | A limitations section specific to that vendor |
@@ -101,9 +101,9 @@ The non-negotiables:
   conditions, clustered by task.
 - Cost, tokens, turns, and wall-clock next to accuracy, never instead of it.
 - Every trajectory and verifier output published.
-- Pinned fixtures. AXI tools wrap live services, so a task reads from a
-  fixture project or repo the vendor bench owns and freezes, never from
-  arbitrary live state.
+- Recreatable fixtures. AXI tools wrap live services, so a task reads from a
+  fixture the vendor bench creates by script before a run and destroys after.
+  Expectations depend only on properties that survive recreation.
 - A trivial-agent baseline and a limitations section in every published result.
 
 ## Planned layout
