@@ -3,8 +3,14 @@
 A shared benchmark harness for comparing **agent tool interfaces**: the same
 model, the same tasks, different ways of reaching the same service (raw vendor
 CLI, an [AXI](https://axi.md) wrapper, an MCP server, code-execution wrappers).
-Built on the [Harbor](https://harborframework.com) task format so tasks are
-containerized, reproducible, and runnable by any Harbor-compatible runner.
+Tasks are authored in YAML and compiled into the
+[Harbor](https://harborframework.com) task format, so runs are containerized,
+reproducible, and runnable by any Harbor-compatible runner.
+
+Comparisons are **within one vendor**: railway-axi versus the Railway CLI, not
+railway-axi versus cloudflare-axi. Different services have different tasks, so
+cross-vendor numbers are not meaningful. What the framework standardizes is the
+method, so each vendor's result can be trusted and re-run.
 
 ## Status
 
@@ -20,9 +26,10 @@ is a point-in-time snapshot that will not be maintained, and invited independent
 benchmarks instead. Meanwhile no tool in the community catalog ships a benchmark
 of its own.
 
-axi-bench takes the good parts of those harnesses (condition matrix, usage
-parsing, command-policy validation, trajectory-based judging) and puts them on a
-standard task format with a methodology that holds up to review.
+axi-bench takes the good parts of those harnesses (YAML task authoring,
+condition matrix, usage parsing, command-policy validation, trajectory-based
+judging) and puts them on a standard runtime with a methodology that holds up
+to review.
 
 ## Ownership split
 
@@ -30,30 +37,35 @@ The framework owns the **how**. Each vendor repo owns the **what**.
 
 | Lives in `axi-bench` (this repo)            | Lives in each `<vendor>-axi` repo under `bench/` |
 | ------------------------------------------- | ------------------------------------------------ |
-| Condition model (one Harbor agent config per tool surface) | `dataset.toml` and `tasks/` in Harbor format |
-| Claude Code / Codex usage and cost parsing  | `conditions.yaml` naming which surfaces to compare |
-| Trajectory LLM judge and verifier helpers   | Per-task deterministic verifiers (`tests/test.sh`) |
+| YAML to Harbor task compiler (`axi-bench generate`) | `tasks.yaml`: prompt, category, verifier per task |
+| Condition model (one Harbor agent config per tool surface) | `conditions.yaml` naming which surfaces to compare |
+| Claude Code / Codex usage and cost parsing  | `environment/Dockerfile` installing every surface, pinned |
+| Trajectory LLM judge and verifier helpers   | `fixtures/` or a frozen fixture project the tasks read from |
 | Statistics and report generation (CIs, paired differences, cost Pareto) | `published-results/` with every trajectory and the rendered report |
-| Command-policy validator                    | Oracle solutions proving each task is solvable |
+| Command-policy validator                    | Oracle commands proving each task is solvable |
 | Templates and the methodology checklist     | A limitations section specific to that vendor |
 
 So yes: every `*-axi` ships its own tasks and results. The framework is what
-makes those results comparable across tools.
+makes each vendor's within-tool comparison use the same method.
 
 ## How a benchmark run works
 
-1. A vendor repo's `bench/tasks/<task>/` holds `instruction.md`, `task.toml`,
-   `environment/Dockerfile`, `tests/test.sh`, and optionally `solution/solve.sh`.
-   The Docker image installs every tool surface being compared.
-2. `conditions.yaml` lists the conditions. axi-bench turns each into a distinct
+1. A vendor repo's `bench/tasks.yaml` lists tasks the way upstream did: a
+   prompt, a category, and a verifier (an expected value, a shell check, or a
+   judge hint as a last resort). One shared `environment/Dockerfile` installs
+   every tool surface being compared.
+2. `axi-bench generate` compiles each YAML entry into a Harbor task directory
+   (`instruction.md`, `task.toml`, `tests/test.sh`, `solution/solve.sh`) under
+   a git-ignored `generated/`. Anyone with plain Harbor can run that output.
+3. `conditions.yaml` lists the conditions. axi-bench turns each into a distinct
    Harbor agent config: same model, distinct agent name, condition-specific
    `env`, `mcp_servers`, and appended instructions.
-3. Harbor runs the full conditions × tasks × repeats matrix, capturing tokens,
+4. Harbor runs the full conditions × tasks × repeats matrix, capturing tokens,
    cost, wall-clock, and the ATIF trajectory per trial.
-4. The verifier runs in a separate container. Deterministic checks first. Where
+5. The verifier runs in a separate container. Deterministic checks first. Where
    a judge is unavoidable it reads the trajectory and writes `reward.json`;
    `harbor job regrade` re-judges without re-running agents.
-5. axi-bench aggregates the per-trial `result.json` files into a report with
+6. axi-bench aggregates the per-trial `result.json` files into a report with
    confidence intervals, paired differences clustered by task, pass^k, and an
    accuracy-versus-cost table.
 
@@ -61,7 +73,7 @@ makes those results comparable across tools.
 
 | axi-bench concept        | Harbor concept |
 | ------------------------ | -------------- |
-| Task set                 | One dataset (`dataset.toml`), tasks with `environment/Dockerfile` |
+| Task set                 | `tasks.yaml` compiled to one dataset (`dataset.toml`) of task directories sharing one image |
 | Condition                | One `AgentConfig` in `job.yaml`, distinct `name`, same `model_name` |
 | Same agent everywhere    | Identical `model_name`; `import_path` differs per condition |
 | Judge over trajectory    | Verifier in `environment_mode = "separate"` with `collect` hooks copying `/logs/agent/` |
@@ -89,7 +101,9 @@ The non-negotiables:
   conditions, clustered by task.
 - Cost, tokens, turns, and wall-clock next to accuracy, never instead of it.
 - Every trajectory and verifier output published.
-- Pinned fixtures. No task may depend on live state of a third-party service.
+- Pinned fixtures. AXI tools wrap live services, so a task reads from a
+  fixture project or repo the vendor bench owns and freezes, never from
+  arbitrary live state.
 - A trivial-agent baseline and a limitations section in every published result.
 
 ## Planned layout
@@ -97,6 +111,7 @@ The non-negotiables:
 ```
 axi-bench/
   src/axi_bench/
+    generate.py       tasks.yaml + Dockerfile → Harbor task dirs + dataset.toml
     conditions.py     conditions.yaml → Harbor AgentConfig list
     agents/           thin Claude Code / Codex subclasses, one per condition
     judge/            trajectory judge and reward.json writer
@@ -105,6 +120,7 @@ axi-bench/
     report.py         markdown + CSV report from Harbor job results
   templates/vendor-bench/   copy into <vendor>-axi/bench/
   docs/methodology.md
+  docs/examples/generated-task/   what generate.py emits for one YAML entry
 ```
 
 ## Requirements (planned)

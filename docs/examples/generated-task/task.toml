@@ -1,7 +1,6 @@
-# Harbor task config. Generated from `harbor tasks init` (harbor 0.22.0) and
-# trimmed. Validate after editing:
-#   uvx --python 3.12 harbor check tasks/<task>   (LLM rubric, needs a model)
-#   or load via harbor.models.task.config.TaskConfig in Python (schema only)
+# Harbor task config as emitted by `axi-bench generate` for one tasks.yaml
+# entry. Reference only; vendors author tasks.yaml, never this file.
+# Validated against harbor 0.22.0 TaskConfig.
 schema_version = "1.4"
 artifacts = []
 

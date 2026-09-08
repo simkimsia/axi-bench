@@ -16,8 +16,14 @@ stats, and report. See README "Ownership split".
 - **Separate repo, not an upstream refactor.** Upstream declined to maintain the
   harness (PRs #28, #94) and its VISION.md caps shared infra. Do not propose
   Harbor adoption or harness consolidation upstream. Restore-class fixes only.
-- **Harbor is the task format.** Python >= 3.12, `harbor` >= 0.22, Docker.
-  No non-container runtime.
+- **Harbor is the runtime and result format. YAML is the authoring format.**
+  Vendors write `tasks.yaml` (prompt, category, verifier) plus one shared
+  Dockerfile; `generate.py` compiles that into Harbor task directories under a
+  git-ignored `generated/`. Never ask a vendor to hand-write `task.toml`.
+  Python >= 3.12, `harbor` >= 0.22, Docker. No non-container runtime.
+- **Comparisons are within one vendor, across conditions.** Different services
+  have different tasks, so never build or imply a cross-vendor leaderboard.
+  The framework standardizes method, not scores.
 - **One Harbor agent per condition.** Harbor has no condition concept and its
   job stats bucket by `agent__model__dataset`. Conditions with the same agent
   name merge silently. Each condition is a thin subclass of the Claude Code or
@@ -65,7 +71,9 @@ solution per task, trivial-agent baseline, limitations section.
   tests under `tests/` with pytest.
 - Conventional commit messages (`feat:`, `fix:`, `docs:`).
 - Vendor bench directories are copied from `templates/vendor-bench/`; changes to
-  the template are a contract change and need a note in the README.
+  the template or to the `tasks.yaml` schema are a contract change and need a
+  note in the README. `docs/examples/generated-task/` must stay in sync with
+  what `generate.py` emits.
 - Prose in this repo: plain sentences, no em dashes.
 
 ## Maintaining this file

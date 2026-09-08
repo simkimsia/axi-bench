@@ -1,5 +1,5 @@
-# Harbor dataset manifest. Generated from `harbor datasets init` (harbor
-# 0.22.0). Add tasks with `harbor add <org>/<name>` or list them under `tasks`.
+# Harbor dataset manifest as emitted by `axi-bench generate`. Reference only.
+# Validated against harbor 0.22.0 DatasetManifest.
 [dataset]
 name = "example-axi/bench"
 version = "0.1.0"

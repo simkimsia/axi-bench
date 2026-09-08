@@ -1,20 +1,18 @@
 # bench/
 
 Benchmark for this AXI tool, in the axi-bench layout. Copy this directory into
-`<vendor>-axi/bench/` and replace the example task.
+`<vendor>-axi/bench/` and replace the example tasks.
 
 ```
 bench/
-  dataset.toml          Harbor dataset manifest
-  conditions.yaml       tool surfaces to compare (axi-bench turns each into a Harbor agent)
-  tasks/<task>/         one Harbor task per directory
-    task.toml
-    instruction.md
-    environment/Dockerfile
-    tests/test.sh       writes /logs/verifier/reward.txt or reward.json
-    solution/solve.sh   oracle, proves the task is solvable
-  published-results/    rendered report + every trajectory of a published run
+  tasks.yaml              tasks: prompt, category, verifier, oracle (authored here)
+  conditions.yaml         tool surfaces to compare (each becomes one Harbor agent)
+  environment/Dockerfile  installs every surface under test, pinned
+  fixtures/               what frozen fixture the tasks read, and how to recreate it
+  generated/              Harbor task dirs + dataset.toml from `axi-bench generate` (git-ignored)
+  published-results/      rendered report + every trajectory of a published run
 ```
 
-Rules: pinned fixtures only, an oracle per task, a limitations section in every
-published report. See axi-bench `docs/methodology.md`.
+Comparisons are between conditions for this vendor only. See axi-bench
+`docs/methodology.md` before publishing, and `docs/examples/generated-task/`
+for what the generator emits.
